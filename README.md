@@ -35,7 +35,7 @@ Create a binary system class with a star of 12.81 Msun collapsing into a compact
 companion of 7 Msun with an orbital period pre-collapse of 5 days:
 
 ```
-binary = BinarySystem(m1=12.81, m1_core_mass=9, m1_remnant_mass=8, m1_fallback_fraction=0.50, m2=7, P=5)
+binary = biaswise.binary.BinarySystem(m1=12.81, m1_core_mass=9, m1_remnant_mass=8, m1_fallback_fraction=0.50, m2=7, P=5)
 ```
 
 Configurate the distribution of natal kicks to be randomly computed. In this case, 50$\,$000 kicks from a
