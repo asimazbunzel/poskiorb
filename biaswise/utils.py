@@ -275,6 +275,8 @@ def make_grid_of_orbital_configurations(x, y, xrange=[0.05, 0.95], yrange=[0.0, 
     ymin = np.quantile(y, yrange[0])
     ymax = np.quantile(y, yrange[1])
 
+    if norm is None: norm = 1
+
     if verbose:
         print('\tborders for xaxis (P): {:.2f}, {:.2f}'.format(xmin, xmax),
               'for quantiles [{:.2f},{:.2f}]'.format(xrange[0], xrange[1]))
