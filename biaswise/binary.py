@@ -320,14 +320,21 @@ class BinarySystem(object):
         self._e_post_borders = yborders
         self._post_probabilities = probs
 
-        # now get probability limit for post kick binary parameters
+        # now get probability limit for post kick binary parameters, using meshgrid to vectorize
+        # computation
         self._min_prob = min_prob
         X, Y = np.meshgrid(self._P_post_grid, self._e_post_grid)
         Z = self._post_probabilities
-        mask = Z.T > min_prob
-        self.P_post_grid = X[mask]
+
+        # put np.nan where probability is below threshold
+        ZZ = np.where(Z.T > min_prob, Z.T, np.nan)
+        XX = np.where(Z.T > min_prob, X, np.nan)
+        YY = np.where(Z.T > min_prob, Y, np.nan)
+
+        self.P_post_grid = XX[~np.isnan(XX)]
         self.a_post_grid = utils.P_to_a(self.P_post_grid, self.m1_remnant_mass, self.m2)
-        self.e_post_grid = Y[mask]
+        self.e_post_grid = YY[~np.isnan(YY)]
+        self.prob_grid = ZZ[~np.isnan(ZZ)].ravel()
 
 
     def show_post_kick_with_grid(self, xattr: str, yattr: str, min_prob: float=0.01, **kwargs):
@@ -427,7 +434,8 @@ class BinarySystem(object):
         for value in header_values: msg += '{}'.format(format_string(value))
         msg += '\n\n'
 
-        column_names = ['natal kick id', 'period [days]', 'separation [days]', 'eccentricity']
+        column_names = ['natal kick id', 'period [days]', 'separation [days]', 'eccentricity',
+                        'probability']
         for name in column_names: msg += '{}'.format(format_string(name))
 
         # natal kick id should have a length according to the number of kicks
@@ -437,9 +445,9 @@ class BinarySystem(object):
 
         msg += '\n'
         for k in range(len(self.P_post_grid)):
-            msg += '{}{}{}{}\n'.format(format_string(id_names[k]),
+            msg += '{}{}{}{}{}\n'.format(format_string(id_names[k]),
                     format_string(self.P_post_grid[k]), format_string(self.a_post_grid[k]),
-                    format_string(self.e_post_grid[k]))
+                    format_string(self.e_post_grid[k]), format_string(self.prob_grid[k]))
 
         with open(fname, 'w') as f:
             f.write(msg)
