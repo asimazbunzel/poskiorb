@@ -430,10 +430,16 @@ class BinarySystem(object):
         column_names = ['natal kick id', 'period [days]', 'separation [days]', 'eccentricity']
         for name in column_names: msg += '{}'.format(format_string(name))
 
+        # natal kick id should have a length according to the number of kicks
+        n = len(str(len(self.P_post_grid)))
+        string = '{:0' + str(n) + 'd}'
+        id_names = [string.format(k) for k in range(0, len(self.P_post_grid)+1)]
+
         msg += '\n'
         for k in range(len(self.P_post_grid)):
-            msg += '{}{}{}{}\n'.format(format_string(k), format_string(self.P_post_grid[k]),
-                format_string(self.a_post_grid[k]), format_string(self.e_post_grid[k]))
+            msg += '{}{}{}{}\n'.format(format_string(id_names[k]),
+                    format_string(self.P_post_grid[k]), format_string(self.a_post_grid[k]),
+                    format_string(self.e_post_grid[k]))
 
         with open(fname, 'w') as f:
             f.write(msg)
