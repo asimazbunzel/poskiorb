@@ -434,7 +434,7 @@ class BinarySystem(object):
         for value in header_values: msg += '{}'.format(format_string(value))
         msg += '\n\n'
 
-        column_names = ['natal kick id', 'period [days]', 'separation [days]', 'eccentricity',
+        column_names = ['natal kick id', 'period [days]', 'separation [Rsun]', 'eccentricity',
                         'probability']
         for name in column_names: msg += '{}'.format(format_string(name))
 
