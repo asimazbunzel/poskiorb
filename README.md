@@ -78,3 +78,21 @@ And save the grid of post-orbital parameters together with information on the pr
 ```
 binary.save_target_grid(fname='grid.data')
 ```
+
+This output will contain a header with information on the binary system and the distribution of kicks.
+Also, for each point in the grid, the probability of finding a binary there will be saved. It will look
+something like this:
+
+```
+# Target grid of orbital parameters
+# Binary at core-collapse
+#          m1 [Msun]          m2 [Msun]           P [days]           a [Rsun]     m1_core [Msun]              m1_fb  m1_remnant [Msun]
+#       1.281000E+01       7.000000E+00       5.000000E+00       3.328600E+01       9.000000E+00       5.000000E-01       8.000000E+00
+# Asymmetric natal kick parameters
+#       distribution              sigma              min_w              max_w           N_trials           min_prob
+#            Maxwell       2.650000E+02       0.000000E+00       1.000000E+99              50000       1.000000E-02
+
+      natal kick id      period [days]  separation [Rsun]       eccentricity        probability
+                 00       5.120560E+00       3.082446E+01       5.169521E-02       1.048000E-02
+                 01       5.120560E+00       3.082446E+01       1.515052E-01       2.060000E-02
+```
