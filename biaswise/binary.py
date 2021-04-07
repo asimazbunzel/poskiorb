@@ -441,7 +441,7 @@ class BinarySystem(object):
         # natal kick id should have a length according to the number of kicks
         n = len(str(len(self.P_post_grid)))
         string = '{:0' + str(n) + 'd}'
-        id_names = [string.format(k) for k in range(0, len(self.P_post_grid)+1)]
+        id_names = [string.format(k+1) for k in range(len(self.P_post_grid))]
 
         msg += '\n'
         for k in range(len(self.P_post_grid)):
