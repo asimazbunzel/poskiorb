@@ -174,11 +174,11 @@ class BinarySystem(object):
         '''
 
         axis_map = {'w': self.w, 'theta': self.theta, 'phi': self.phi, 'w_post': self.w_post,
-                    'theta_post': self.theta_post, 'phi_post': self.phi_post}
+                    'theta_post': self.theta_post, 'phi_post': self.phi_post, 'cos_i': self.cosi}
 
         labels = {'w': '$v_{\\rm kick}$ [km s$^{-1}$]', 'theta': '$\\theta$', 'phi': '$\\phi$',
                   'w_post': '$v_{\\rm kick}$ [km s$^{-1}$]', 'theta_post': '$\\theta$',
-                  'phi_post': '$\\phi$'}
+                  'phi_post': '$\\phi$', 'cos_i': '$\\cos\\,(i)$'}
 
         if xattr not in axis_map.keys():
             msg = '`xattr` must be one of: ' + ', '.join(['`{}`'.format(k) for k in
