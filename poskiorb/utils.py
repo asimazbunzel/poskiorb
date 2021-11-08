@@ -6,7 +6,7 @@ from typing import Union, Tuple
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-from biaswise.constants import *
+from poskiorb.constants import *
 
 # set the default font and fontsize
 plt.rc('font', family='STIXGeneral')
@@ -238,7 +238,7 @@ def binary_orbits_after_kick(a: float, m1:float, m2:float, m1_remnant_mass: floa
     return a_post/Rsun, P_post, e, cos_i, v_sys, w/1e5, theta, phi
 
 
-def make_grid_of_orbital_configurations(x, y, xrange=[0.05, 0.95], yrange=[0.0, 1.0],
+def make_grid_of_orbital_configurations(x, y, z, xrange=[0.05, 0.95], yrange=[0.0, 1.0],
         xnum=None, ynum=None, norm=None, verbose=False):
     '''Compute probabilities on orbital parameters post natal kick and divide it according
     to a threshold
@@ -250,6 +250,9 @@ def make_grid_of_orbital_configurations(x, y, xrange=[0.05, 0.95], yrange=[0.0, 
 
     y : `array`
        Values on the yaxis. Tipically eccentricty (`e_post`)
+
+    z : `array`
+       Values on the zaxis. Use for inclination values only (`cosi`)
 
     xrange : `array`
        Quantiles to use as borders xrange = [xmin, xmax]
@@ -292,13 +295,31 @@ def make_grid_of_orbital_configurations(x, y, xrange=[0.05, 0.95], yrange=[0.0, 
     xgrids = np.sqrt(xborders[1:] * xborders[0:-1])
     ygrids = 0.5*(yborders[1:] + yborders[0:-1])
 
+    # loop over each rectangle to compute its probability
     probabilities = np.zeros((xnum, ynum))
-    for k, (xk, yk) in enumerate(zip(x, y)):
+    for k, (xk, yk, zk) in enumerate(zip(x, y, z)):
         for i, xgrid in enumerate(xgrids):
             if xborders[i] <= xk < xborders[i+1]:
                 for j, ygrid in enumerate(ygrids):
                     if yborders[j] <= yk < yborders[j+1]:
                         probabilities[i,j] += 1
+
+    # another method: use numpy for faster computation
+    zmin, zmax = -1, 1  # limits on cosi
+    points = np.column_stack((x, y, z))
+    probabilities2 = np.zeros((xnum, ynum))
+    for kx in range(len(xborders)-1):
+        xmin = xborders[kx]
+        xmax = xborders[kx+1]
+        for ky in range(len(yborders)-1):
+            ymin = yborders[ky]
+            ymax = yborders[ky+1]
+            ll = np.array([xmin, ymin, zmin])  # lower-left
+            ur = np.array([xmax, ymax, zmax])  # upper-right
+            inidx = np.all(np.logical_and(ll <= points, points <= ur), axis=1)
+            inbox = points[inidx]344
+            probabilities2[kx,ky] = len(inbox)
+            # outbox = pts[np.logical_not(inidx)]
 
     return xgrids, ygrids, xborders, yborders, norm*probabilities/len(x)
     

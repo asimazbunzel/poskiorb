@@ -5,8 +5,8 @@ from typing import Any, Callable, Tuple, Union
 
 import numpy as np
 
-from biaswise import utils
-from biaswise import kicks
+from poskiorb import utils
+from poskiorb import kicks
 
 __all__ = ['BinarySytem']
 
@@ -294,6 +294,8 @@ class BinarySystem(object):
         if x is None: raise ValueError('`P_post` cannot be None')
         y = self.e_post
         if y is None: raise ValueError('`e_post` cannot be None')
+        z = self.cosi
+        if z is None: raise ValueError('`cosi` cannot be None')
 
         # check that quantiles are OK
         if xquantiles[0] > xquantiles[1]:
@@ -309,7 +311,7 @@ class BinarySystem(object):
         if use_unbounded_for_norm:
             norm = len(self.w_post) / len(self.w)
 
-        xgrid, ygrid, xborders, yborders, probs = utils.make_grid_of_orbital_configurations(x, y,
+        xgrid, ygrid, xborders, yborders, probs = utils.make_grid_of_orbital_configurations(x, y, z,
                 xquantiles, yquantiles, xnum, ynum, norm, verbose)
 
         self._P_post_grid = xgrid

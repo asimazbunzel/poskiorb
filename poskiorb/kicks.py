@@ -6,7 +6,7 @@ Provides values for random kicks directions and strengths according to results f
 import numpy as np
 from scipy.stats import maxwell, uniform, cauchy as lorentz
 
-from biaswise.constants import *
+from poskiorb.constants import *
 
 _all_ = ['theta_distribution', 'phi_distribution', 'kick_velocity_distribution']
 
