@@ -215,8 +215,8 @@ def binary_orbits_after_kick(a: float, m1:float, m2:float, m1_remnant_mass: floa
     wz = wz[bounded_mask]
 
     if verbose:
-        print('\t{} binaries remain bounded'.format(len(e)))
-        print('\t{} binaries become unbounded'.format(len(w)-len(e)))
+        print('\t{} binaries remain bounded ({:5.2f} percent)'.format(len(e), len(e)/len(w)*100))
+        print('\t{} binaries become unbounded ({:5.2f} percent)'.format(len(w)-len(e), (len(w)-len(e))/len(w)*100))
     
     # update natal kick distro after verbose due to use of len(w)
     w = w[bounded_mask]
@@ -317,7 +317,7 @@ def make_grid_of_orbital_configurations(x, y, z, xrange=[0.05, 0.95], yrange=[0.
             ll = np.array([xmin, ymin, zmin])  # lower-left
             ur = np.array([xmax, ymax, zmax])  # upper-right
             inidx = np.all(np.logical_and(ll <= points, points <= ur), axis=1)
-            inbox = points[inidx]344
+            inbox = points[inidx]
             probabilities2[kx,ky] = len(inbox)
             # outbox = pts[np.logical_not(inidx)]
 
