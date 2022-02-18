@@ -25,7 +25,7 @@ class BinarySystem(object):
     ----------
     m1 : `float`
        Mass of the collapsing star in Msun units.
-    
+
     m1_core_mass : `float`
        Mass of the carbon-oxygen core of the collapsing star in Msun units.
 
@@ -78,7 +78,7 @@ class BinarySystem(object):
             seed: int=22, kick_sigma: float=265e0, min_v_kick: float=0e0, max_v_kick: float=1e99,
             kick_scaling: Callable[[Any],Any]=lambda x: x) -> None:
         '''Set distribution in the magnitude of the natal kick
-        
+
         The angle distribution of the asymmetric natal kick is assumed to be isotropic
 
         Parameters
@@ -97,7 +97,7 @@ class BinarySystem(object):
 
         min_v_kick : `float`
            Min kick velocity in km/s (only used for linearly-spaced and log-spaced cases).
-        
+
         max_v_kick : `float`
            Max kick velocity in km/s (only used for linearly-spaced and log-spaced cases).
 
@@ -105,7 +105,7 @@ class BinarySystem(object):
            Some function to apply to natal kick strength as a scaling factor. Default is
            to leave kick strength as it is.
         '''
-        
+
         # n_trials must be integer > 0
         if n_trials <= 0: raise ValueError('`n_trials` needs to be a positive integer')
 
@@ -140,7 +140,7 @@ class BinarySystem(object):
 
         # call to random kick distributions
         theta = kicks.theta_distribution(N=self.natal_kick_info['n_trials'])
-        
+
         phi = kicks.phi_distribution(N=self.natal_kick_info['n_trials'])
 
         w = kicks.kick_velocity_distribution(distribution=self.natal_kick_info['kick_distribution'],
@@ -159,11 +159,12 @@ class BinarySystem(object):
         self.theta = theta
         self.phi = phi
         self.w = w
+        self.id = np.arange(1, self.natal_kick_info['n_trials'] + 1, dtype=np.int64)
 
 
     def plot_kick_distribution(self, xattr: str, **kwargs) -> None:
         '''Plot utility for natal kick distributions (w, theta, phi)
-        
+
         Parameters
         ----------
         xattr : `string`
@@ -205,9 +206,9 @@ class BinarySystem(object):
         '''
 
         # compute new binary orbital parameters
-        a_post, P_post, e_post, cosi, v_sys, w, theta, phi = utils.binary_orbits_after_kick(
+        a_post, P_post, e_post, cosi, v_sys, w, theta, phi, ids_post = utils.binary_orbits_after_kick(
                 a=self.a, m1=self.m1, m2=self.m2, m1_remnant_mass=self.m1_remnant_mass, w=self.w,
-                theta=self.theta, phi=self.phi, verbose=verbose)
+                theta=self.theta, phi=self.phi, ids=self.id, verbose=verbose)
 
         # update object with binaries bounded after asymmetric kick
         self.a_post = a_post
@@ -218,6 +219,8 @@ class BinarySystem(object):
         self.w_post = w
         self.theta_post = theta
         self.phi_post = phi
+
+        self.ids_post = ids_post
 
 
     def plot_post_kick_orbital_configurations(self, xattr: str, yattr: str,
@@ -262,7 +265,7 @@ class BinarySystem(object):
         Based on two arrays of the same length, it divides the 2D plane into rectangular grids,
         computes the probability of each rectangle (MonteCarlo approach, a simple summation)
         and returns the grid and the probabilities.
-        
+
         Parameters
         ----------
         xnum : `integer`
@@ -273,7 +276,7 @@ class BinarySystem(object):
 
         xquantiles : `array`
            Compute bins on xaxis between (xquantiles[0], xquantiles[1])
-           
+
         yquantiles : `array`
            Compute bins on yaxis between (yquantiles[0], yquantiles[1])
 
@@ -289,7 +292,7 @@ class BinarySystem(object):
         '''
 
         axis_map = {'P': self.P_post, 'e': self.e_post, 'a': self.a_post}
-        
+
         x = self.P_post
         if x is None: raise ValueError('`P_post` cannot be None')
         y = self.e_post
@@ -316,10 +319,10 @@ class BinarySystem(object):
 
         self._P_post_grid = xgrid
         self._a_post_grid = utils.P_to_a(xgrid, self.m1_remnant_mass, self.m2)
-        self._P_post_borders = xborders
-        self._a_post_borders = utils.P_to_a(xborders, self.m1_remnant_mass, self.m2)
+        self.P_post_borders = xborders
+        self.a_post_borders = utils.P_to_a(xborders, self.m1_remnant_mass, self.m2)
         self._e_post_grid = ygrid
-        self._e_post_borders = yborders
+        self.e_post_borders = yborders
         self._post_probabilities = probs
 
         # now get probability limit for post kick binary parameters, using meshgrid to vectorize
@@ -395,7 +398,7 @@ class BinarySystem(object):
 
         It saves some info on the distribution used for the natal kicks with important values.
         In addition, the probability set to define grid is also present
-        
+
         Parameters
         ----------
         fname : `str`
@@ -454,3 +457,47 @@ class BinarySystem(object):
         with open(fname, 'w') as f:
             f.write(msg)
 
+
+    def save_complete_grid(self, kick_fname: str='kick-distribution.data',
+                           orbit_fname: str='orbit.data') -> None:
+        '''TBD
+        '''
+
+        def format_string(value):
+            if isinstance(value, str) or isinstance(value, int) or isinstance(value, np.int64):
+                return '{:>19}'.format(value)
+            else:
+                return '{:>19E}'.format(value)
+
+        column_names = ['natal kick id', 'w', 'theta', 'phi']
+        msg = ''
+        for name in column_names: msg += f'{format_string(name)}'
+        # natal kick id should have a length according to the number of kicks
+        n = len(str(len(self.id)))
+        string = '{:0' + str(n) + 'd}'
+
+        msg += '\n'
+        for k in range(len(self.id)):
+            msg += f'{format_string(self.id[k])}{format_string(self.w[k])}'
+            msg += f'{format_string(self.theta[k])}{format_string(self.phi[k])}\n'
+        
+        # store kick distribution
+        with open(kick_fname, 'w') as f:
+            f.write(msg)
+
+        # now, save data on orbital parameters
+        column_names = ['natal kick id', 'period', 'separation', 'eccentricity']
+        msg = ''
+        for name in column_names: msg += '{}'.format(format_string(name))
+
+        # natal kick id should have a length according to the number of kicks
+        n = len(str(len(self.id)))
+        string = '{:0' + str(n) + 'd}'
+
+        msg += '\n'
+        for k in range(len(self.P_post)):
+            msg += f'{format_string(self.ids_post[k])}{format_string(self.P_post[k])}'
+            msg += f'{format_string(self.a_post[k])}{format_string(self.e_post[k])}\n'
+
+        with open(orbit_fname, 'w') as f:
+            f.write(msg)

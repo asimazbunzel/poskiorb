@@ -130,9 +130,10 @@ def a_to_f(separation: Union[float, np.ndarray], m1: Union[float, np.ndarray],
 
 def binary_orbits_after_kick(a: float, m1:float, m2:float, m1_remnant_mass: float,
                    w: Union[float, np.ndarray], theta: Union[float, np.ndarray],
-                   phi:Union[float, np.ndarray], verbose: bool=False) -> Tuple[Union[float, np.ndarray],
+                   phi:Union[float, np.ndarray], ids:Union[float, np.ndarray],
+                   verbose: bool=False) -> Tuple[Union[float, np.ndarray],
                    Union[float, np.ndarray], Union[float, np.ndarray], Union[float, np.ndarray],
-                   Union[float, np.ndarray]]:
+                   Union[float, np.ndarray], Union[float, np.ndarray]]:
     '''Function to compute binary orbital parameters after an asymmetric core-collapse
 
     Assuming an initial circular orbit, this function calculates the binary configuration after a
@@ -214,6 +215,8 @@ def binary_orbits_after_kick(a: float, m1:float, m2:float, m1_remnant_mass: floa
     wy = wy[bounded_mask]
     wz = wz[bounded_mask]
 
+    ids_post = ids[bounded_mask]
+
     if verbose:
         print('\t{} binaries remain bounded ({:5.2f} percent)'.format(len(e), len(e)/len(w)*100))
         print('\t{} binaries become unbounded ({:5.2f} percent)'.format(len(w)-len(e), (len(w)-len(e))/len(w)*100))
@@ -235,7 +238,7 @@ def binary_orbits_after_kick(a: float, m1:float, m2:float, m1_remnant_mass: floa
     # get orbital period of bounded binaries
     P_post = a_to_P(a_post/Rsun, m1_remnant_mass/Msun, m2/Msun)
 
-    return a_post/Rsun, P_post, e, cos_i, v_sys, w/1e5, theta, phi
+    return a_post/Rsun, P_post, e, cos_i, v_sys, w/1e5, theta, phi, ids_post
 
 
 def make_grid_of_orbital_configurations(x, y, z, xrange=[0.05, 0.95], yrange=[0.0, 1.0],
