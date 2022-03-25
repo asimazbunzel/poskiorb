@@ -373,8 +373,8 @@ class BinarySystem(object):
         fig, ax = utils.make_scatter_plot(x, y, show=False, **kwargs)
 
         grid_map = {'P': self._P_post_grid, 'a': self._a_post_grid, 'e': self._e_post_grid}
-        borders_map = {'P': self._P_post_borders, 'a': self._a_post_borders,
-                       'e': self._e_post_borders}
+        borders_map = {'P': self.P_post_borders, 'a': self.a_post_borders,
+                       'e': self.e_post_borders}
 
         xgrid = grid_map[xattr]
         ygrid = grid_map[yattr]
