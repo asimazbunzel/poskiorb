@@ -458,6 +458,30 @@ class BinarySystem(object):
             f.write(msg)
 
 
+    def save_border_grid(self, fname: str='borders.data') -> None:
+        '''TBD
+        '''
+        
+        def format_string(value):
+            if isinstance(value, str) or isinstance(value, int):
+                return '{:>19}'.format(value)
+            else:
+                return '{:>19E}'.format(value)
+
+        column_names = ['period', 'separation', 'eccentricity']
+        msg = ''
+        for name in column_names: msg += '{}'.format(format_string(name))
+
+        msg += '\n'
+        for k in range(len(self.P_post_borders)):
+            msg += '{}{}{}\n'.format(format_string(self.P_post_borders[k]),
+                    format_string(self.a_post_borders[k]),
+                    format_string(self.e_post_borders[k]))
+
+        with open(fname, 'w') as f:
+            f.write(msg)
+
+
     def save_complete_grid(self, kick_fname: str='kick-distribution.data',
                            orbit_fname: str='orbit.data') -> None:
         '''TBD
@@ -480,13 +504,13 @@ class BinarySystem(object):
         for k in range(len(self.id)):
             msg += f'{format_string(self.id[k])}{format_string(self.w[k])}'
             msg += f'{format_string(self.theta[k])}{format_string(self.phi[k])}\n'
-        
+
         # store kick distribution
         with open(kick_fname, 'w') as f:
             f.write(msg)
 
         # now, save data on orbital parameters
-        column_names = ['natal kick id', 'period', 'separation', 'eccentricity']
+        column_names = ['natal kick id', 'period', 'separation', 'eccentricity', 'cosi', 'v_sys', 'w', 'theta', 'phi']
         msg = ''
         for name in column_names: msg += '{}'.format(format_string(name))
 
@@ -497,7 +521,10 @@ class BinarySystem(object):
         msg += '\n'
         for k in range(len(self.P_post)):
             msg += f'{format_string(self.ids_post[k])}{format_string(self.P_post[k])}'
-            msg += f'{format_string(self.a_post[k])}{format_string(self.e_post[k])}\n'
+            msg += f'{format_string(self.a_post[k])}{format_string(self.e_post[k])}'
+            msg += f'{format_string(self.cosi[k])}{format_string(self.v_sys[k])}'
+            msg += f'{format_string(self.w_post[k])}{format_string(self.theta_post[k])}'
+            msg += f'{format_string(self.phi_post[k])}\n'
 
         with open(orbit_fname, 'w') as f:
             f.write(msg)
