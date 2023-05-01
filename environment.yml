@@ -7,6 +7,7 @@ dependencies:
   - python =3.8
   - build
   - black
+  - flake8
   - interrogate
   - isort
   - pyupgrade

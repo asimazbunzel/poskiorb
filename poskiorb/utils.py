@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 
-from .constants import *
+from .constants import Msun, Rsun, one_third, pi, standard_cgrav
 
 # set the default font and fontsize
 plt.rc("font", family="STIXGeneral")
@@ -252,7 +252,8 @@ def binary_orbits_after_kick(
     if verbose:
         print(f"\t{len(e)} binaries remain bounded ({len(e)/len(w)*100:5.2f} percent)")
         print(
-            f"\t{len(w)-len(e)} binaries become unbounded ({(len(w)-len(e))/len(w)*100:5.2f} percent)"
+            f"\t{len(w)-len(e)} binaries become unbounded ({(len(w)-len(e))/len(w)*100:5.2f} "
+            "percent)"
         )
 
     # update natal kick distro after verbose due to use of len(w)
