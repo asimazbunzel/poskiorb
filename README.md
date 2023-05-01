@@ -1,10 +1,6 @@
 # POSKIORB (post natal kick orbits)
 
-<div align="center">
-
 [![License](https://img.shields.io/github/license/asimazbunzel/poskiorb)](https://github.com/asimazbunzel/poskiorb/blob/main/LICENSE)
-
-</div>
 
 Compute binary parameters after a core-collapse with an asymmetric kick
 
