@@ -7,7 +7,7 @@ import numpy as np
 from scipy.stats import cauchy as lorentz
 from scipy.stats import maxwell, uniform
 
-from .constants import *
+from .constants import pi
 
 _all_ = ["theta_distribution", "phi_distribution", "kick_velocity_distribution"]
 

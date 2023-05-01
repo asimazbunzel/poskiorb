@@ -1,13 +1,13 @@
 """Class for representing a binary system at core-collapse stage
 """
 
-from typing import Any, Callable, Tuple, Union
+from typing import Any, Callable, Tuple
 
 import numpy as np
 
 from . import kicks, utils
 
-__all__ = ["BinarySytem"]
+__all__ = ["BinarySystem"]
 
 
 class BinarySystem:
@@ -359,8 +359,6 @@ class BinarySystem:
            Output more information for user
         """
 
-        axis_map = {"P": self.P_post, "e": self.e_post, "a": self.a_post}
-
         x = self.P_post
         if x is None:
             raise ValueError("`P_post` cannot be None")
@@ -425,7 +423,7 @@ class BinarySystem:
         for attr in (xattr, yattr):
             if attr not in scatter_map.keys():
                 msg = "`xattr` and `yattr` must be one of: " + ", ".join(
-                    [f"`{k}`" for k in list(axis_map.keys())]
+                    [f"`{k}`" for k in list(scatter_map.keys())]
                 )
                 raise ValueError(msg)
 
@@ -606,8 +604,7 @@ class BinarySystem:
         for name in column_names:
             msg += f"{format_string(name)}"
         # natal kick id should have a length according to the number of kicks
-        n = len(str(len(self.id)))
-        string = "{:0" + str(n) + "d}"
+        # n = len(str(len(self.id)))
 
         msg += "\n"
         for k in range(len(self.id)):
@@ -635,8 +632,7 @@ class BinarySystem:
             msg += f"{format_string(name)}"
 
         # natal kick id should have a length according to the number of kicks
-        n = len(str(len(self.id)))
-        string = "{:0" + str(n) + "d}"
+        # n = len(str(len(self.id)))
 
         msg += "\n"
         for k in range(len(self.P_post)):
