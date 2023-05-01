@@ -1,0 +1,15 @@
+name: poskiorb-dev
+
+channels:
+  - conda-forge
+
+dependencies:
+  - python =3.8
+  - build
+  - black
+  - interrogate
+  - isort
+  - pyupgrade
+  - sphinx
+  - sphinx-rtd-theme
+  - sphinx-automodapi
