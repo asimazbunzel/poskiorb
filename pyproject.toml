@@ -1,0 +1,61 @@
+[build-system]
+requires = ["setuptools", "wheel", "setuptools_scm"]
+build-backend = "setuptools.build_meta"
+
+[tool.black]
+line-length = 100
+target-version = ['py36']
+exclude = '''
+(
+  /(
+      \.eggs         # all directories in the root of the project
+    | \.git
+    | \.hg
+    | \.mypy_cache
+    | \.nox
+    | \.tox
+    | \.venv
+    | \.svn
+    | _build
+    | buck-out
+    | build
+    | dist
+  )/
+  | setup.py
+  | docs/conf.py
+  | _astropy_init.py
+)
+'''
+
+[tool.interrogate]
+color = true
+#exclude = ["setup.py", "docs", "build"]
+#fail-under = 90
+ignore-init-method = true
+ignore-init-module = true
+ignore-magic = true
+ignore-module = true
+ignore-nested-functions = false
+ignore-nested-classes = true
+ignore-private = true
+ignore-property-decorators = true
+#ignore-regex = ["^get$", "^mock_.*", ".*BaseClass.*"]
+ignore-semiprivate = true
+ignore-setters = true
+omit-covered-files = false
+quiet = false
+verbose = 0
+#whitelist-regex = []
+
+[tool.isort]
+# https://github.com/timothycrosley/isort/
+py_version = 37
+line_length = 100
+
+known_typing = ["typing", "types", "typing_extensions", "mypy", "mypy_extensions"]
+sections = ["FUTURE", "TYPING", "STDLIB", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
+include_trailing_comma = true
+profile = "black"
+multi_line_output = 3
+indent = 4
+color_output = true
