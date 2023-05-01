@@ -11,3 +11,5 @@ dependencies:
   - isort
   - pyupgrade
   - sphinx
+  - sphinx-rtd-theme
+  - sphinx-automodapi
