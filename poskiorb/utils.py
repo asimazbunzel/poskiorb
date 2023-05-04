@@ -13,8 +13,20 @@ __all_ = [
     "binary_orbits_after_kick",
     "make_grid_of_orbital_configurations",
     "P_to_a",
+    "set_seed",
     "v_orb",
 ]
+
+
+def set_seed(seed: int) -> None:
+    """Set seed to reproduce runs
+
+    Parameters
+    ----------
+    seed : `int`
+        Seed integer number
+    """
+    np.random.seed(seed=seed)
 
 
 def v_orb(

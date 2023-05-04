@@ -10,6 +10,7 @@ from .utils import (
     a_to_P,
     binary_orbits_after_kick,
     make_grid_of_orbital_configurations,
+    set_seed,
     v_orb,
 )
 

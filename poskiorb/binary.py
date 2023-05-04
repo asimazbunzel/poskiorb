@@ -85,7 +85,7 @@ class BinarySystem:
         self,
         n_trials: int = 1,
         distribution_id: str = None,
-        seed: int = 22,
+        seed: int = None,
         kick_sigma: float = 265e0,
         min_v_kick: float = 0e0,
         max_v_kick: float = 1e99,
@@ -144,6 +144,9 @@ class BinarySystem:
 
         if kick_sigma < 0:
             raise ValueError("`kick_sigma must be positive`")
+
+        if seed is not None:
+            utils.set_seed(seed=seed)
 
         self.natal_kick_info = {
             "n_trials": n_trials,
