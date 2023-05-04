@@ -3,54 +3,69 @@
 
 from typing import Tuple, Union
 
-import matplotlib.pyplot as plt
 import numpy as np
-import seaborn as sns
 
 from .constants import Msun, Rsun, one_third, pi, standard_cgrav
 
-# set the default font and fontsize
-plt.rc("font", family="STIXGeneral")
-plt.rcParams["text.usetex"] = False
-params = {
-    "figure.figsize": (12, 8),
-    "font.style": "normal",
-    "font.serif": "DejaVu Serif",
-    "font.sans-serif": "DejaVu Sans",
-    "font.monospace": "DejaVu Sans Mono",
-    "mathtext.rm": "sans",
-    "mathtext.fontset": "stix",
-    "legend.fontsize": 11,
-    "axes.labelsize": 11,
-    "xtick.labelsize": 10,
-    "ytick.labelsize": 10,
-    "xtick.top": True,
-    "xtick.bottom": True,
-    "xtick.direction": "inout",
-    "xtick.minor.visible": True,
-    "ytick.left": True,
-    "ytick.right": True,
-    "ytick.direction": "inout",
-    "ytick.minor.visible": True,
-}
-plt.rcParams.update(params)
-
-
 __all_ = [
-    "P_to_a",
-    "a_to_P",
     "a_to_f",
+    "a_to_P",
     "binary_orbits_after_kick",
-    "make_grid_of_orbital_configurations" "plot_1D_distribution",
-    "make_scatter_plot",
-    "make_grid_plot",
+    "make_grid_of_orbital_configurations",
+    "P_to_a",
+    "v_orb",
 ]
+
+
+def v_orb(
+    r: Union[float, np.ndarray],
+    m1: Union[float, np.ndarray],
+    m2: Union[float, np.ndarray],
+    separation: Union[float, np.ndarray],
+) -> Union[float, np.ndarray]:
+    """Relative orbital velocity between two objects of masses m1 and m2, with a semi-major a, at
+    position r
+
+    Parameters
+    ----------
+    r : `float/array`
+       Position in Rsun
+
+    m1 : `float/array`
+       Mass of primary star in Msun
+
+    m2 : `flota/array`
+       Mass of secondary star in Msun
+
+    separation : `float/array`
+       Binary separation in Rsun
+
+    Returns
+    -------
+    v : `float/array`
+       Relative orbital velocity in km/s
+    """
+
+    # numpy arrays !
+    r = np.asarray(r)
+    m1 = np.asarray(m1)
+    m2 = np.asarray(m2)
+    separation = np.asarray(separation)
+
+    # use cgs. we don't use, e.g., m1 *= Msun as if m1 is an int, this will throw an error
+    r = r * Rsun
+    m1 = m1 * Msun
+    m2 = m2 * Msun
+    separation = separation * Rsun
+
+    vpow2 = standard_cgrav * (m1 + m2) * ((2e0 / r) - (1e0 / separation))
+    return np.sqrt(vpow2) / 1e5
 
 
 def P_to_a(
     period: Union[float, np.ndarray], m1: Union[float, np.ndarray], m2: Union[float, np.ndarray]
 ) -> Union[float, np.ndarray]:
-    """Binary separation from a known period
+    """Binary separation from a given orbital period
 
     Parameters
     ----------
@@ -65,13 +80,19 @@ def P_to_a(
 
     Returns
     -------
-    a : `float/array`
+    separation : `float/array`
        Binary separation in Rsun
     """
 
-    period = period * 24e0 * 3600e0  # in sec
+    # numpy arrays !
+    period = np.asarray(period)
+    m1 = np.asarray(m1)
+    m2 = np.asarray(m2)
+
+    # use cgs
+    period = period * 24e0 * 3600e0
     m1 = m1 * Msun
-    m2 = m2 * Msun  # in g
+    m2 = m2 * Msun
 
     separation = np.power(standard_cgrav * (m1 + m2) * np.square(period / (2 * pi)), one_third)
 
@@ -81,11 +102,11 @@ def P_to_a(
 def a_to_P(
     separation: Union[float, np.ndarray], m1: Union[float, np.ndarray], m2: Union[float, np.ndarray]
 ) -> Union[float, np.ndarray]:
-    """Orbital period from a known separation
+    """Orbital period from a given separation
 
     Parameters
     ----------
-    a : `float/array`
+    separation : `float/array`
        Binary separation in Rsun
 
     m1: `float/array`
@@ -100,9 +121,15 @@ def a_to_P(
        Binary period in days
     """
 
-    separation = separation * Rsun  # in cm
+    # numpy arrays !
+    separation = np.asarray(separation)
+    m1 = np.asarray(m1)
+    m2 = np.asarray(m2)
+
+    # use cgs
+    separation = separation * Rsun
     m1 = m1 * Msun
-    m2 = m2 * Msun  # in g
+    m2 = m2 * Msun
 
     period = np.power(separation * separation * separation / (standard_cgrav * (m1 + m2)), 0.5e0)
     period = (2 * pi) * period
@@ -132,9 +159,15 @@ def a_to_f(
        Orbital frequency
     """
 
-    separation = separation * Rsun  # in cm
+    # numpy arrays !
+    separation = np.asarray(separation)
+    m1 = np.asarray(m1)
+    m2 = np.asarray(m2)
+
+    # use cgs
+    separation = separation * Rsun
     m1 = m1 * Msun
-    m2 = m2 * Msun  # in g
+    m2 = m2 * Msun
 
     f_orb = np.power(standard_cgrav * (m1 + m2) / separation**3, 0.5) / (2 * pi)
 
@@ -149,7 +182,7 @@ def binary_orbits_after_kick(
     w: Union[float, np.ndarray],
     theta: Union[float, np.ndarray],
     phi: Union[float, np.ndarray],
-    ids: Union[float, np.ndarray],
+    ids: Union[int, np.ndarray],
     verbose: bool = False,
 ) -> Tuple[
     Union[float, np.ndarray],
@@ -167,99 +200,135 @@ def binary_orbits_after_kick(
     Parameters
     ----------
     a : `float`
-       Pre-SN separation in Rsun.
+       Pre-SN separation in Rsun
 
     m1 : `float`
-       Mass of collapsing star pre-SN in Msun.
+       Mass of collapsing star pre-SN in Msun
 
     m2 : `float`
-       Mass of companion in Msun.
+       Mass of companion in Msun
 
     m1_remnant_mass : `float`
-       Gravitational mass of compact object in Msun.
+       Gravitational mass of compact object in Msun
 
     w : `float/array`
-       Natal kick velocity in km/s.
+       Natal kick velocity in km/s
 
     theta : `float/array`
-       Polar angle of kick.
+       Polar angle of kick
 
     phi : `float/array`
-       Azimutal angle of kick velocity.
+       Azimutal angle of kick velocity
 
     verbose : `bool`
-       Flag to control additional output to user.
+       Flag to control additional output to user
 
     Returns
     -------
     a_post : `float/array`
-       Post-SN separation in Rsun.
+       Post-SN separation in Rsun
 
     P_post : `float/array`
-       Post-SN orbital period in days.
+       Post-SN orbital period in days
 
     e : `float/array`
-       Eccentricity of binary post-SN.
+       Eccentricity of binary post-SN
 
     cos_i : `float/array`
-       Cosine of the inclination between pre & post SN orbits.
+       Cosine of the inclination between pre & post SN orbits
 
     v_sys : `float/array`
        Systemic velocity post-SN in km/s
     """
 
-    if verbose:
-        print(f"calculating post core-collapse orbits for {len(w)} kicks")
+    # numpy arrays !
+    a = np.asarray(a)
+    m1 = np.asarray(m1)
+    m2 = np.asarray(m2)
+    m1_remnant_mass = np.asarray(m1_remnant_mass)
+    w_ = np.asarray(w)
+    theta_ = np.asarray(theta)
+    phi_ = np.asarray(phi)
+    ids = np.asarray(ids)
 
-    # Input values conversion to cgs
+    # use cgs
     a = a * Rsun
     m1 = m1 * Msun
     m2 = m2 * Msun
     m1_remnant_mass = m1_remnant_mass * Msun
-    w = w * 1e5
-
-    # Velocity pre-SN
-    v_pre = np.sqrt(standard_cgrav * (m1 + m2) / a)
-
-    # Kick velocity (w) must be projected to (x,y,z)
-    wx = w * np.cos(phi) * np.sin(theta)
-    wy = w * np.cos(theta)
-    wz = w * np.sin(phi) * np.sin(theta)
-
-    # Eqs. (3), (4) & (5) of Kalogera (1996)
-    a_post = (
-        standard_cgrav
-        * (m1_remnant_mass + m2)
-        / (2 * standard_cgrav * (m1_remnant_mass + m2) / a - w**2 - v_pre**2 - 2 * wy * v_pre)
-    )
-    e = np.sqrt(
-        1
-        - (wz**2 + wy**2 + v_pre**2 + 2 * wy * v_pre)
-        * a**2
-        / (standard_cgrav * (m1_remnant_mass + m2) * a_post)
-    )
-
-    # only interested in bounded binaries
-    bounded_mask = (a_post > 0) & (e < 1)
-    a_post = a_post[bounded_mask]
-    e = e[bounded_mask]
-    wx = wx[bounded_mask]
-    wy = wy[bounded_mask]
-    wz = wz[bounded_mask]
-
-    ids_post = ids[bounded_mask]
+    w_ = w_ * 1e5
 
     if verbose:
-        print(f"\t{len(e)} binaries remain bounded ({len(e)/len(w)*100:5.2f} percent)")
-        print(
-            f"\t{len(w)-len(e)} binaries become unbounded ({(len(w)-len(e))/len(w)*100:5.2f} "
-            "percent)"
-        )
+        if w_[None].ndim > 1:
+            print(f"calculating post core-collapse orbits for {len(w_)} kick(s)")
+        else:
+            print("calculating post core-collapse orbits for 1 kick")
 
-    # update natal kick distro after verbose due to use of len(w)
-    w = w[bounded_mask]
-    theta = theta[bounded_mask]
-    phi = phi[bounded_mask]
+    # velocity pre-SN assuming circular orbit: np.sqrt(standard_cgrav * (m1 + m2) / a)
+    v_pre = v_orb(r=a / Rsun, m1=m1 / Msun, m2=m2 / Msun, separation=a / Rsun)
+
+    # kick velocity (w) must be projected to (x,y,z)
+    wx_ = w_ * np.cos(phi_) * np.sin(theta_)
+    wy_ = w_ * np.cos(theta_)
+    wz_ = w_ * np.sin(phi_) * np.sin(theta_)
+
+    # eqs. (3), (4) & (5) of Kalogera (1996)
+    a_post_ = (
+        standard_cgrav
+        * (m1_remnant_mass + m2)
+        / (2 * standard_cgrav * (m1_remnant_mass + m2) / a - w_**2 - v_pre**2 - 2 * wy_ * v_pre)
+    )
+    e_ = np.sqrt(
+        1
+        - (wz_**2 + wy_**2 + v_pre**2 + 2 * wy_ * v_pre)
+        * a**2
+        / (standard_cgrav * (m1_remnant_mass + m2) * a_post_)
+    )
+
+    # set np.nan to values outside boundaries, i.e., replace unbounded binaries with NaNs
+    a_post_ = np.where(a_post_ > 0, a_post_, np.nan)
+    e_ = np.where(e_ >= 0, e_, np.nan)
+    e_ = np.where(e_ < 1, e_, np.nan)
+    # patch for cases where e is very close to 0 & 1
+    e_ = np.where(abs(e_) < 1e-6, 0, e_)
+    e_ = np.where(abs(e_ - 1) < 1e-6, np.nan, e_)
+
+    # only interested in bounded binaries
+    if w_[None].ndim > 1:
+        bounded_mask = np.isfinite(e_) & np.isfinite(a_post_)
+        a_post = a_post_[bounded_mask]
+        e = e_[bounded_mask]
+        wx = wx_[bounded_mask]
+        wy = wy_[bounded_mask]
+        wz = wz_[bounded_mask]
+        ids_post = ids[bounded_mask]
+        w = w_[bounded_mask]
+        theta = theta_[bounded_mask]
+        phi = phi_[bounded_mask]
+
+        if verbose:
+            print(f"\t{len(e)} binary(ies) remain bounded " f"({len(e)/len(w_)*100:5.2f} percent)")
+            print(
+                f"\t{len(w_)-len(e)} binaries become "
+                f"unbounded ({(len(w_)-len(e))/len(w_)*100:5.2f} percent)"
+            )
+
+    else:
+        if not np.isfinite(e_) or not np.isfinite(a_post_):
+            return np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan
+
+        else:
+            a_post = a_post_
+            e = e_
+            ids_post = ids
+            wx = wx_
+            wy = wy_
+            wz = wz_
+            w = w_
+            theta = theta_
+            phi = phi_
+            if verbose:
+                print(f"\tbinary remain bounded !")
 
     # Inclination between pre & post SN orbits. Eq. (11) in Kalogera, 1996
     cos_i = (wy + v_pre) / np.sqrt(wz**2 + (wy + v_pre) ** 2)
@@ -311,6 +380,10 @@ def make_grid_of_orbital_configurations(
     verbose : `boolean`
        Whether to output more information to user
     """
+
+    x = np.asarray(x)
+    y = np.asarray(y)
+    z = np.asarray(z)
 
     if verbose:
         print("making grid of orbital configurations")
@@ -370,370 +443,3 @@ def make_grid_of_orbital_configurations(
             # outbox = pts[np.logical_not(inidx)]
 
     return xgrids, ygrids, xborders, yborders, norm * probabilities / len(x)
-
-
-def plot_1D_distribution(
-    x,
-    weights=None,
-    disttype="hist",
-    fig=None,
-    ax=None,
-    xlabel=None,
-    ylabel=None,
-    xlim=None,
-    ylim=None,
-    color=None,
-    show=True,
-    **kwargs,
-):
-    """plot a 1D distribution of ``x``
-
-    This function is a wrapper for :func:`matplotlib.pyplot.hist`,
-    :func:`seaborn.kdeplot` and :func:`seaborn.ecdfplot`.
-
-    Copied from the excellent repo `The LISA Evolution and Gravitational Wave ORbit Kit`
-    All credits goes to authors: https://github.com/katiebreivik/LEGWORK (visualization.py module)
-
-    Parameters
-    ----------
-    x : `float/int array`
-        Variable to plot, should be a 1D array
-
-    weights : `float/int array`
-        Weights for each variable in ``x``, must have the same shape
-
-    disttype : `{{ "hist", "kde", "ecdf" }}`
-        Which type of distribution plot to use
-
-    fig: `matplotlib Figure`
-        A figure on which to plot the distribution. Both `ax` and `fig` must be
-        supplied for either to be used
-
-    ax: `matplotlib Axis`
-        An axis on which to plot the distribution. Both `ax` and `fig` must be
-        supplied for either to be used
-
-    xlabel : `string`
-        Label for the x axis, passed to Axes.set_xlabel()
-
-    ylabel : `string`
-        Label for the y axis, passed to Axes.set_ylabel()
-
-    xlim : `tuple`
-        Lower and upper limits for the x axis, passed to Axes.set_xlim()
-
-    ylim : `tuple`
-        Lower and upper limits for the y axis, passed to Axes.set_ylim()
-
-    color : `string or tuple`
-        Colour to use for the plot, see
-        https://matplotlib.org/tutorials/colors/colors.html for details on how
-        to specify a colour
-
-    show : `boolean`
-        Whether to immediately show the plot or only return the Figure and Axis
-
-    **kwargs : `(if disttype=="hist")`
-        Include values for any of `bins, range, density, cumulative, bottom,
-        histtype, align, orientation, rwidth, log, label`. See
-        :func:`matplotlib.pyplot.hist` for more details.
-
-    **kwargs : `(if disttype=="kde")`
-        Include values for any of `gridsize, cut, clip, legend, cumulative,
-        bw_method, bw_adjust, log_scale, fill, label, linewidth, linestyle`.
-        See :func:`seaborn.kdeplot` for more details.
-
-    **kwargs : `(if disttype=="ecdf")`
-        Include values for any of `stat, complementary, log_scale, legend,
-        label, linewidth, linestyle`. See :func:`seaborn.edcfplot`
-        for more details.
-
-    Returns
-    -------
-    fig : `matplotlib Figure`
-        The figure on which the distribution is plotted
-
-    ax : `matplotlib Axis`
-        The axis on which the distribution is plotted
-    """
-
-    # create new figure and axes is either weren"t provided
-    if fig is None or ax is None:
-        fig, ax = plt.subplots()
-
-    # possible kwargs for matplotlib.hist
-    hist_args = {
-        "bins": "auto",
-        "range": None,
-        "density": True,
-        "cumulative": False,
-        "bottom": None,
-        "histtype": "bar",
-        "align": "mid",
-        "orientation": "vertical",
-        "rwidth": None,
-        "log": False,
-        "label": None,
-    }
-
-    # possible kwargs for seaborn.kdeplot
-    kde_args = {
-        "gridsize": 200,
-        "cut": 3,
-        "clip": None,
-        "legend": True,
-        "cumulative": False,
-        "bw_method": "scott",
-        "bw_adjust": 1,
-        "log_scale": None,
-        "fill": None,
-        "label": None,
-        "linewidth": None,
-        "linestyle": None,
-    }
-
-    # possible kwargs for seaborn.ecdfplot
-    ecdf_args = {
-        "stat": "proportion",
-        "complementary": False,
-        "log_scale": None,
-        "legend": True,
-        "label": None,
-        "linewidth": None,
-        "linestyle": None,
-    }
-
-    # set which ones we are using for this plot
-    plot_args = hist_args if disttype == "hist" else kde_args if disttype == "kde" else ecdf_args
-
-    # update the values with those supplied
-    for key, value in kwargs.items():
-        if key in plot_args:
-            plot_args[key] = value
-        else:
-            # warn user if they give an invalid kwarg
-            print(
-                f"Warning: keyword argument `{key}`",
-                f"not recognised for disttype `{disttype}`",
-                "and will be ignored",
-            )
-
-    # create whichever plot was requested
-    if disttype == "hist":
-        ax.hist(x, weights=weights, color=color, **plot_args)
-    elif disttype == "kde":
-        sns.kdeplot(x=x, weights=weights, ax=ax, color=color, **plot_args)
-    elif disttype == "ecdf":
-        sns.ecdfplot(x=x, weights=weights, ax=ax, color=color, **plot_args)
-
-    # update axis labels
-    if xlabel is not None:
-        ax.set_xlabel(xlabel)
-    if ylabel is not None:
-        ax.set_ylabel(ylabel)
-
-    # update axis limits
-    if xlim is not None:
-        ax.set_xlim(xlim)
-    if ylim is not None:
-        ax.set_ylim(ylim)
-
-    # immediately show the plot if requested
-    if show:
-        plt.show()
-
-    # return the figure and axis for further plotting
-    return fig, ax
-
-
-def make_scatter_plot(
-    x,
-    y,
-    fig=None,
-    ax=None,
-    xlabel=None,
-    ylabel=None,
-    xlim=None,
-    ylim=None,
-    s=None,
-    color=None,
-    marker=None,
-    show=True,
-    xlogscale=True,
-    ylogscale=False,
-    **kwargs,
-):
-    """make scatter plot
-
-    This function is a wrapper for :func:`matplotlib.pyplot.scatter`,
-
-    Parameters
-    ---------
-    x : `float/int array`
-        Variable to plot on xaxis, should be a 1D array
-
-    y : `float/int array`
-        Variable to plot on yaxis, should be a 1D array
-
-    fig: `matplotlib Figure`
-        A figure on which to plot the distribution. Both `ax` and `fig` must be
-        supplied for either to be used
-
-    ax: `matplotlib Axis`
-        An axis on which to plot the distribution. Both `ax` and `fig` must be
-        supplied for either to be used
-
-    xlabel : `string`
-        Label for the x axis, passed to Axes.set_xlabel()
-
-    ylabel : `string`
-        Label for the y axis, passed to Axes.set_ylabel()
-
-    xlim : `tuple`
-        Lower and upper limits for the x axis, passed to Axes.set_xlim()
-
-    ylim : `tuple`
-        Lower and upper limits for the y axis, passed to Axes.set_ylim()
-
-    s : `integer`
-        Size of the scatter points
-
-    color : `string or tuple`
-        Colour to use for the plot, see
-        https://matplotlib.org/tutorials/colors/colors.html for details on how
-        to specify a colour
-
-    marker : `string`
-        The marker style. See matplotlib.markers for more information about marker styles.
-
-    show : `boolean`
-        Whether to immediately show the plot or only return the Figure and Axis
-
-    xlogscale : `boolean`
-        Whether to use log scale on the xaxis
-
-    ylogscale : `boolean`
-        Whether to use log scale on the yaxis
-
-    **kwargs : `(if disttype=="hist")`
-        Include values for any of the rest of arguments to pass to matplotlib scatter.
-        See matplotlib scatter doc for more info.ç
-
-    Returns
-    -------
-    fig : `matplotlib Figure`
-        The figure on which the distribution is plotted
-    ax : `matplotlib Axis`
-        The axis on which the distribution is plotted
-    """
-
-    # create new figure and axes is either weren"t provided
-    if fig is None or ax is None:
-        fig, ax = plt.subplots()
-
-    if xlogscale:
-        ax.set_xscale("log")
-    if ylogscale:
-        ax.set_yscale("log")
-
-    # create scatter plot
-    ax.scatter(x, y, s=s, c=color, marker=marker, **kwargs)
-
-    # update axis labels
-    if xlabel is not None:
-        ax.set_xlabel(xlabel)
-    if ylabel is not None:
-        ax.set_ylabel(ylabel)
-
-    # update axis limits
-    if xlim is not None:
-        ax.set_xlim(xlim)
-    if ylim is not None:
-        ax.set_ylim(ylim)
-
-    # immediately show the plot if requested
-    if show:
-        plt.show()
-
-    # return the figure and axis for further plotting
-    return fig, ax
-
-
-def make_grid_plot(
-    xgrid, ygrid, xborders, yborders, annotations, fig, ax, xlim=None, ylim=None, show=True
-):
-    """Fill 2D binary parameter space after kick with a grid based on some probability
-
-    Parameters
-    ----------
-    xgrid : `array`
-        X coordinate of center of each rectangle in the grid
-
-    ygrid : `array`
-        Y coordinate of center of each rectangle in the grid
-
-    xborders : `array`
-        X coordinate of border of each rectangle in the grid. Sort of bins in xaxis
-
-    yborders : `array`
-        Y coordinate of border of each rectangle in the grid. Sort of bins in yaxis
-
-    annotations : `array`
-        What to annotate in (xgrid, ygrid). Tipically np.log10(probability)
-
-    fig: `matplotlib Figure`
-        A figure on which to plot the distribution. Both `ax` and `fig` must be
-        supplied for either to be used
-
-    ax: `matplotlib Axis`
-        An axis on which to plot the distribution. Both `ax` and `fig` must be
-        supplied for either to be used
-
-    xlim : `tuple`
-        Lower and upper limits for the x axis, passed to Axes.set_xlim()
-
-    ylim : `tuple`
-        Lower and upper limits for the y axis, passed to Axes.set_ylim()
-
-    show : `boolean`
-        Whether to immediately show the plot or only return the Figure and Axis
-
-    Returns
-    -------
-    fig : `matplotlib Figure`
-        The figure on which the distribution is plotted
-    ax : `matplotlib Axis`
-        The axis on which the distribution is plotted
-    """
-
-    for xb in xborders:
-        ax.axvline(xb, ls="--", color="gray", zorder=99, alpha=0.45)
-    for yb in yborders:
-        ax.axhline(yb, ls="--", color="gray", zorder=99, alpha=0.45)
-
-    for i, xg in enumerate(xgrid):
-        for j, yg in enumerate(ygrid):
-            prob = annotations[i, j]
-            if prob > 0.01:
-                ax.text(
-                    xg,
-                    yg,
-                    f"{np.log10(prob):.1f}",
-                    c="black",
-                    ha="center",
-                    va="center",
-                    fontsize=7,
-                    bbox=dict(facecolor="white", edgecolor="C0", alpha=0.75, pad=2),
-                )
-
-    # update axis limits
-    if xlim is not None:
-        ax.set_xlim(xlim)
-    if ylim is not None:
-        ax.set_ylim(ylim)
-
-    # immediately show the plot if requested
-    if show:
-        plt.show()
-
-    return fig, ax

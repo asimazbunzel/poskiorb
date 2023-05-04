@@ -5,7 +5,7 @@ from typing import Any, Callable, Tuple
 
 import numpy as np
 
-from . import kicks, utils
+from . import kicks, plotter, utils
 
 __all__ = ["BinarySystem"]
 
@@ -234,7 +234,7 @@ class BinarySystem:
         if "xlabel" not in kwargs.keys():
             kwargs["xlabel"] = labels[xattr]
 
-        utils.plot_1D_distribution(x=x, **kwargs)
+        plotter.plot_1D_distribution(x=x, **kwargs)
 
     def get_orbital_distribution(self, verbose: bool = False) -> None:
         """Evaluate orbital parameter distribution based on a distribution of natal kicks
@@ -316,7 +316,7 @@ class BinarySystem:
         if "ylabel" not in kwargs.keys():
             kwargs["ylabel"] = labels[yattr]
 
-        return utils.make_scatter_plot(x, y, **kwargs)
+        return plotter.make_scatter_plot(x, y, **kwargs)
 
     def get_post_kick_grid(
         self,
@@ -447,7 +447,7 @@ class BinarySystem:
         if "ylabel" not in kwargs.keys():
             kwargs["ylabel"] = labels[yattr]
 
-        fig, ax = utils.make_scatter_plot(x, y, show=False, **kwargs)
+        fig, ax = plotter.make_scatter_plot(x, y, show=False, **kwargs)
 
         grid_map = {"P": self._P_post_grid, "a": self._a_post_grid, "e": self._e_post_grid}
         borders_map = {"P": self.P_post_borders, "a": self.a_post_borders, "e": self.e_post_borders}
@@ -461,8 +461,17 @@ class BinarySystem:
         xlims = [0.9 * xborders[0], 1.1 * xborders[-1]]
         ylims = [yborders[0], yborders[-1]]
 
-        return utils.make_grid_plot(
-            xgrid, ygrid, xborders, yborders, self._post_probabilities, fig, ax, xlims, ylims
+        return plotter.make_grid_plot(
+            xgrid,
+            ygrid,
+            xborders,
+            yborders,
+            min_prob,
+            self._post_probabilities,
+            fig,
+            ax,
+            xlims,
+            ylims,
         )
 
     def save_target_grid(self, fname: str = "grid.data") -> None:
