@@ -8,6 +8,34 @@ import poskiorb
 class TestBinary(unittest.TestCase):
     """Test binary module"""
 
+    def test_blaauw_kick_no_mass_loss(self):
+        """Blaauw kick"""
+
+        # load a known case
+        bS = poskiorb.BinarySystem(
+            m1=50, m1_core_mass=50, m1_remnant_mass=50, m1_fallback_fraction=0, m2=50, P=2
+        )
+        bS.set_single_natal_kick(w=0, theta=0, phi=0)
+
+        bS.get_orbital_distribution()
+
+        self.assertTrue(np.isclose(bS.P_post, bS.P), "unknown changes detected for Porb")
+        self.assertTrue(np.isclose(bS.e_post, 0), "unknown changes detected for e")
+
+    def test_blaauw_kick_with_mass_loss(self):
+        """Blaauw kick with mass loss"""
+
+        # repeat, but now assuming a 10 Msun lost during collapse
+        bS = poskiorb.BinarySystem(
+            m1=50, m1_core_mass=50, m1_remnant_mass=40, m1_fallback_fraction=0, m2=50, P=2
+        )
+        bS.set_single_natal_kick(w=0, theta=0, phi=0)
+
+        bS.get_orbital_distribution()
+
+        self.assertTrue(np.isclose(bS.P_post, 2.52, atol=0.01), f"changes detected in Porb: {bS.P_post}")
+        self.assertTrue(np.isclose(bS.e_post, 0.11, atol=0.01), f"changes detected in e: {bS.e_post}")
+
     def test_kick_distributions(self):
         """Kick distribution"""
 
@@ -88,9 +116,6 @@ class TestBinary(unittest.TestCase):
             0.1,
             0.1,
             0.1,
-            0.1,
-            0.1,
-            0.2,
-            0.1,
         ]
-        self.assertTrue(np.allclose(bS.prob_grid, grid_should_be), "grid not equal")
+
+        self.assertTrue(np.allclose(bS.prob_grid, grid_should_be), f"grid not equal: {bS.prob_grid}")

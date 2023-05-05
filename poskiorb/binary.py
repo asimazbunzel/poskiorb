@@ -158,6 +158,29 @@ class BinarySystem:
             "kick_scaling": kick_scaling,
         }
 
+    def set_single_natal_kick(self, w: float, theta: float, phi: float) -> None:
+        """Set single natal kick
+
+        Parameters
+        ----------
+        w : `float`
+            Kick strength in km/s
+
+        theta: `float`
+            Polar angle between 0 and pi
+
+        phi: `float`
+           Azimuthal angle between 0 and 2*pi
+        """
+        
+        if w < 0:
+            raise ValueError("`w must be positive`")
+
+        self.w = w
+        self.theta = theta
+        self.phi = phi
+        self.id = 1
+
     def get_natal_kick_distribution(self) -> None:
         """Compute random asymmetric natal kicks from a given distribution
 
