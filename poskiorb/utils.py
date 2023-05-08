@@ -295,12 +295,12 @@ def binary_orbits_after_kick(
             - 2 * wy_ * v_pre
         )
     )
-    # pay attention to cases where e is close to 0 !
     ecc2 = 1 - (
         (wz_**2 + wy_**2 + v_pre**2 + 2 * wy_ * v_pre)
         * a**2
         / (standard_cgrav * (m1_remnant_mass + m2) * a_post_)
     )
+    # pay attention to cases where e is close to 0 !
     ecc2 = np.where(np.abs(ecc2) < 1e-8, 0, ecc2)
     e_ = np.sqrt(ecc2)
 
@@ -308,9 +308,8 @@ def binary_orbits_after_kick(
     a_post_ = np.where(a_post_ > 0, a_post_, np.nan)
     e_ = np.where(e_ >= 0, e_, np.nan)
     e_ = np.where(e_ < 1, e_, np.nan)
-    # patch for cases where e is very close to 0 & 1
-    e_ = np.where(abs(e_) < 1e-8, 0, e_)
-    e_ = np.where(abs(e_ - 1) < 1e-8, np.nan, e_)
+    # patch for cases where e is very close to 1
+    e_ = np.where(np.abs(e_ - 1) < 1e-8, np.nan, e_)
 
     # only interested in bounded binaries
     if w_[None].ndim > 1:
