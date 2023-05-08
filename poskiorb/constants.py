@@ -18,7 +18,7 @@ ln4pi3 = 1.4324119583011810e0  # = log_cr(4*pi/3)
 two_13 = 1.2599210498948730e0  # = pow_cr(2d0,1d0/3d0)
 four_13 = 1.5874010519681994e0  # = pow_cr(4d0,1d0/3d0)
 
-standard_cgrav = 6.67428e-8  # gravitational constant (g^-1 cm^3 s^-2)
+standard_cgrav = 6.67430e-8  # gravitational constant (g^-1 cm^3 s^-2)
 planck_h = 6.62606896e-27  # Planck"s constant (erg s)
 hbar = planck_h / (2 * pi)
 qe = 4.80320440e-10  # electron charge (esu == (g cm^3 s^-2)^(1/2))

@@ -5,7 +5,7 @@ from typing import Any, Callable, Tuple
 
 import numpy as np
 
-from . import kicks, utils
+from . import kicks, plotter, utils
 
 __all__ = ["BinarySystem"]
 
@@ -85,7 +85,7 @@ class BinarySystem:
         self,
         n_trials: int = 1,
         distribution_id: str = None,
-        seed: int = 22,
+        seed: int = None,
         kick_sigma: float = 265e0,
         min_v_kick: float = 0e0,
         max_v_kick: float = 1e99,
@@ -145,6 +145,9 @@ class BinarySystem:
         if kick_sigma < 0:
             raise ValueError("`kick_sigma must be positive`")
 
+        if seed is not None:
+            utils.set_seed(seed=seed)
+
         self.natal_kick_info = {
             "n_trials": n_trials,
             "seed": seed,
@@ -154,6 +157,29 @@ class BinarySystem:
             "max_v_kick": max_v_kick,
             "kick_scaling": kick_scaling,
         }
+
+    def set_single_natal_kick(self, w: float, theta: float, phi: float) -> None:
+        """Set single natal kick
+
+        Parameters
+        ----------
+        w : `float`
+            Kick strength in km/s
+
+        theta: `float`
+            Polar angle between 0 and pi
+
+        phi: `float`
+           Azimuthal angle between 0 and 2*pi
+        """
+
+        if w < 0:
+            raise ValueError("`w must be positive`")
+
+        self.w = w
+        self.theta = theta
+        self.phi = phi
+        self.id = 1
 
     def get_natal_kick_distribution(self) -> None:
         """Compute random asymmetric natal kicks from a given distribution
@@ -234,7 +260,7 @@ class BinarySystem:
         if "xlabel" not in kwargs.keys():
             kwargs["xlabel"] = labels[xattr]
 
-        utils.plot_1D_distribution(x=x, **kwargs)
+        plotter.plot_1D_distribution(x=x, **kwargs)
 
     def get_orbital_distribution(self, verbose: bool = False) -> None:
         """Evaluate orbital parameter distribution based on a distribution of natal kicks
@@ -316,7 +342,7 @@ class BinarySystem:
         if "ylabel" not in kwargs.keys():
             kwargs["ylabel"] = labels[yattr]
 
-        return utils.make_scatter_plot(x, y, **kwargs)
+        return plotter.make_scatter_plot(x, y, **kwargs)
 
     def get_post_kick_grid(
         self,
@@ -447,7 +473,7 @@ class BinarySystem:
         if "ylabel" not in kwargs.keys():
             kwargs["ylabel"] = labels[yattr]
 
-        fig, ax = utils.make_scatter_plot(x, y, show=False, **kwargs)
+        fig, ax = plotter.make_scatter_plot(x, y, show=False, **kwargs)
 
         grid_map = {"P": self._P_post_grid, "a": self._a_post_grid, "e": self._e_post_grid}
         borders_map = {"P": self.P_post_borders, "a": self.a_post_borders, "e": self.e_post_borders}
@@ -461,8 +487,17 @@ class BinarySystem:
         xlims = [0.9 * xborders[0], 1.1 * xborders[-1]]
         ylims = [yborders[0], yborders[-1]]
 
-        return utils.make_grid_plot(
-            xgrid, ygrid, xborders, yborders, self._post_probabilities, fig, ax, xlims, ylims
+        return plotter.make_grid_plot(
+            xgrid,
+            ygrid,
+            xborders,
+            yborders,
+            min_prob,
+            self._post_probabilities,
+            fig,
+            ax,
+            xlims,
+            ylims,
         )
 
     def save_target_grid(self, fname: str = "grid.data") -> None:
