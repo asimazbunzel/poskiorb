@@ -288,10 +288,19 @@ def binary_orbits_after_kick(
     a_post_ = (
         standard_cgrav
         * (m1_remnant_mass + m2)
-        / ((2 * standard_cgrav * (m1_remnant_mass + m2) / a) - w_**2 - v_pre**2 - 2 * wy_ * v_pre)
+        / (
+            (2 * standard_cgrav * (m1_remnant_mass + m2) / a)
+            - w_**2
+            - v_pre**2
+            - 2 * wy_ * v_pre
+        )
     )
     # pay attention to cases where e is close to 0 !
-    ecc2 = 1 - ((wz_**2 + wy_**2 + v_pre**2 + 2 * wy_ * v_pre) * a**2 / (standard_cgrav * (m1_remnant_mass + m2) * a_post_))
+    ecc2 = 1 - (
+        (wz_**2 + wy_**2 + v_pre**2 + 2 * wy_ * v_pre)
+        * a**2
+        / (standard_cgrav * (m1_remnant_mass + m2) * a_post_)
+    )
     ecc2 = np.where(np.abs(ecc2) < 1e-8, 0, ecc2)
     e_ = np.sqrt(ecc2)
 

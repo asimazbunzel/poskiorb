@@ -172,7 +172,7 @@ class BinarySystem:
         phi: `float`
            Azimuthal angle between 0 and 2*pi
         """
-        
+
         if w < 0:
             raise ValueError("`w must be positive`")
 
