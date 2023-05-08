@@ -33,8 +33,12 @@ class TestBinary(unittest.TestCase):
 
         bS.get_orbital_distribution()
 
-        self.assertTrue(np.isclose(bS.P_post, 2.52, atol=0.01), f"changes detected in Porb: {bS.P_post}")
-        self.assertTrue(np.isclose(bS.e_post, 0.11, atol=0.01), f"changes detected in e: {bS.e_post}")
+        self.assertTrue(
+            np.isclose(bS.P_post, 2.52, atol=0.01), f"changes detected in Porb: {bS.P_post}"
+        )
+        self.assertTrue(
+            np.isclose(bS.e_post, 0.11, atol=0.01), f"changes detected in e: {bS.e_post}"
+        )
 
     def test_kick_distributions(self):
         """Kick distribution"""
@@ -118,4 +122,6 @@ class TestBinary(unittest.TestCase):
             0.1,
         ]
 
-        self.assertTrue(np.allclose(bS.prob_grid, grid_should_be), f"grid not equal: {bS.prob_grid}")
+        self.assertTrue(
+            np.allclose(bS.prob_grid, grid_should_be), f"grid not equal: {bS.prob_grid}"
+        )
